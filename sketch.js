@@ -1,99 +1,87 @@
-// Bubble class
+//no animation / interaction chart
+//if you want to use animation or create a loading state look at the cat fact example from last week 
+// use a boolean to control when your data is loaded
 
 
-class Bubble {
-  constructor(x, y, diameter, name) {
-    this.x = x;
-    this.y = y;
-    this.diameter = diameter;
-    this.radius = diameter / 2;
-    this.name = name;
-
-    this.over = false;
-  }
-
-  // Check if mouse is over the bubble
-  rollover(px, py) {
-    let d = dist(px, py, this.x, this.y);
-    this.over = d < this.radius;
-  }
-
-  // Display the Bubble
-  display() {
-    let myColor= ['#ec9b01','#bc3e01','#009395','#022133',
-'#016074','#93d2bd','#edd9a6','#cb6501','#b02113','#72151f'];
-    stroke(myColor);
-    //strokeWeight(0.8);
-    noFill();
-    ellipse(this.x, this.y, this.diameter, this.diameter);
-    if (this.over) {
-      fill(0);
-      textAlign(CENTER);
-      text(this.name, this.x, this.y + this.radius + 20);
-    }
-  }
-}
-
-let data = {}; // Global object to hold results from the loadJSON call
-let bubbles = []; // Global array to hold all bubble objects
-
-// Put any asynchronous data loading in preload to complete before "setup" is run
-function preload() {
-  data = loadJSON('bubble2.json');
-}
-
-// Convert saved Bubble data into Bubble Objects
-function loadData() {
-  let bubbleData = data['bubbles'];
-  for (let i = 0; i < bubbleData.length; i++) {
-    // Get each object in the array
-    let bubble = bubbleData[i];
-    // Get a position object
-    let position = bubble['position'];
-    // Get x,y from position
-    let x = position['x'];
-    let y = position['y'];
-
-    // Get diameter and label
-    let diameter = bubble['diameter'];
-    let label = bubble['label'];
-
-    // Put object in array
-    bubbles.push(new Bubble(x, y, diameter, label));
-  }
-}
-
-// Create a new Bubble each time the mouse is clicked.
-function mousePressed() {
-  // Add diameter and label to bubble
-  let diameter = random(40, 800);
-  let label = 'A Brand New Bubble!';
-
-  // Append the new JSON bubble object to the array
-  bubbles.push(new Bubble(mouseX, mouseY, diameter, label));
-
-  // Prune Bubble Count if there are too many
-  if (bubbles.length > 100) {
-    bubbles.shift(); // remove first item from array
-  }
-}
-
+let oceanAci;
+let amplitude;
 function setup() {
-  createCanvas(windowWidth,windowHeight);
-  loadData();
+  createCanvas(700, 700);
+
+  //no animation / interaction chart
+  //noLoop();
+
+  fetch("./json/oceanAci.json").then(function(response) {
+    return response.json();
+  }).then(function(data) {
+
+    console.log(data);
+    
+    oceanAci = data.oceanAci;
+
+    //using no Loop? you can just call your function once the data is loaded
+    drawChart();
+  
+  }).catch(function(err) {
+    console.log(`Something went wrong: ${err}`);
+  });
+
 }
 
 function draw() {
-  background(255);
+  background(200);
+  drawChart();
+}
 
-  // Display all bubbles
-  for (let i = 0; i < bubbles.length; i++) {
-    bubbles[i].display();
-    bubbles[i].rollover(mouseX, mouseY);
+function drawChart(){
+
+  // Compute maximum amount (for normalization)
+  let maxval = 0; 
+  for (let i=0; i<oceanAci.length; i++) {
+    if ( oceanAci[i].pHmeas > maxval) {
+      maxval = oceanAci[i].pHmeas;
+    }
   }
 
-  // Label directions at bottom
-  textAlign(LEFT);
-  fill(0);
-  text('Click to add bubbles.', 10, height - 10);
+  let spacing = 15;//spacing between the bars
+  // Display chart
+  for (let i=0; i<oceanAci.length; i++) {
+
+    let item = oceanAci[i];
+    
+    let rWidth = width/(oceanAci.length+2); //add 2 so there is space either side of the chart
+    let rX = map(i, 0, oceanAci.length, rWidth, width-rWidth); //map range includes the space on either side
+    let rY = height-rWidth; 
+    let rHeight = 0-map(item.pHmeas, 0, maxval, 0, height-(rWidth*2)); // map height so spacing on top + bottom match side spacing 
+    
+    //draw the data
+    push();
+    noStroke();
+   fill(item.pHcalc_insitu);
+    //rect(rX+spacing/2, rY, rWidth-spacing, rHeight); 
+    ellipse(width/2,height-rY, width-rWidth+rHeight, rWidth*2+rHeight/2);
+
+    push();
+    noFill();
+    //fill(item.pHcalc_insitu);
+    amplitude= map(item.pHmeas,69,122,-100,100);
+
+    stroke(item.pHcalc_insitu); 
+    strokeWeight(5);
+    bezier(width/2,height-rY, 
+    width/2+amplitude,height-rY+rWidth,
+    rX+ spacing*3, rY + rWidth,
+    rX+spacing, rY);
+
+    pop();
+    pop();
+    fill(0); 
+    textAlign(CENTER, TOP); 
+    text(item.date, rX+rWidth/2-1, rY+10);
+  }  
+
+}
+
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight);
 }

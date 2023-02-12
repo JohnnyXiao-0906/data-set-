@@ -1,0 +1,35 @@
+{
+   "oceanAci": [
+        {
+            "date": "1992",
+            "pHmeas": 122,
+            "pHcalc_insitu": "rgb(0,135,135)"
+            
+        },
+        {
+            "date": "1996",
+            "pHmeas": 114,
+            "pHcalc_insitu": "rgb(0,112,112)"
+        },    
+        {
+            "date": "2000",
+            "pHmeas": 97,
+            "pHcalc_insitu": "rgb(0,91,91)"
+        },
+        {
+            "date": "2004",
+            "pHmeas": 94,
+            "pHcalc_insitu": "rgb(0,83,83)"
+        },
+        {
+            "date": "2008",
+            "pHmeas": 85,
+            "pHcalc_insitu": "rgb(0,79,79)"
+        },
+        {
+            "date": "2012",
+            "pHmeas": 69,
+            "pHcalc_insitu": "rgb(0,59,59)"
+        }
+    ]
+}
