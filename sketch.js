@@ -5,6 +5,7 @@
 
 let oceanAci;
 let amplitude;
+let xoff = 0.0;
 function setup() {
   createCanvas(700, 700);
 
@@ -29,7 +30,7 @@ function setup() {
 }
 
 function draw() {
-  background(200);
+  background(0);
   drawChart();
 }
 
@@ -65,19 +66,23 @@ function drawChart(){
     noFill();
     //fill(item.pHcalc_insitu);
     amplitude= map(item.pHmeas,69,122,-100,100);
+for(let j = -10; j <=10 ; j++){
+  xoff = xoff + 0.001;
+  let n = noise(xoff) * width;
 
     stroke(item.pHcalc_insitu); 
     strokeWeight(5);
     bezier(width/2,height-rY, 
-    width/2+amplitude,height-rY+rWidth,
+    width/2 +j - cos(j)*rY,height-rY+rWidth,
     rX+ spacing*3, rY + rWidth,
-    rX+spacing, rY);
+    rX+spacing*3, rY);
+  }
 
     pop();
     pop();
-    fill(0); 
+    fill(255); 
     textAlign(CENTER, TOP); 
-    text(item.date, rX+rWidth/2-1, rY+10);
+    text(item.date, rX+rWidth/2-1, rY+20);
   }  
 
 }
